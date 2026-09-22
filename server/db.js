@@ -16,6 +16,18 @@ function makeClient() {
       authToken: process.env.TURSO_AUTH_TOKEN,
     })
   }
+  if (process.env.VERCEL) {
+    // Nunca quebrar o import no serverless: o erro claro aparece no log da função.
+    console.error('❌ TURSO_DATABASE_URL não configurado na Vercel')
+    return {
+      execute: async () => {
+        throw new Error('TURSO_DATABASE_URL não configurado (Environment Variables)')
+      },
+      batch: async () => {
+        throw new Error('TURSO_DATABASE_URL não configurado (Environment Variables)')
+      },
+    }
+  }
   const __dirname = path.dirname(fileURLToPath(import.meta.url))
   const dataDir = path.join(__dirname, '..', 'data')
   fs.mkdirSync(dataDir, { recursive: true })
