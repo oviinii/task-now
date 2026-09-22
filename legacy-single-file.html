@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>QuestLog — Tarefas • XP • Nível</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f0f1a;--card:#1a1a2e;--card2:#21213e;--line:#2e2e5a;--accent:#7c5cff;--accent2:#00d9a5;--gold:#ffb700;--text:#ececff;--muted:#9a9ac0}
+[data-theme="neon"]{--bg:#0a0f1e;--card:#13203a;--card2:#1a2e55;--line:#23406e;--accent:#00e5ff;--accent2:#00ff9d}
+[data-theme="ember"]{--bg:#1a0f0f;--card:#2a1a1a;--card2:#3a2323;--line:#5a2e2e;--accent:#ff4d4d;--accent2:#ffb700}
+body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+a{color:var(--accent)}
+.hidden{display:none!important}
+.auth-wrap{min-height:100vh;display:grid;place-items:center;padding:20px;background:radial-gradient(800px 400px at 20% 0%, #7c5cff22, transparent),var(--bg)}
+.auth-card{width:100%;max-width:420px;background:linear-gradient(135deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:20px;padding:22px}
+.tabs{display:flex;gap:8px;margin:14px 0}
+.tab{flex:1;padding:10px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--text);cursor:pointer;font-weight:700}
+.tab.on{background:var(--accent);border-color:transparent;color:#fff}
+.field{display:grid;gap:6px;margin-top:10px}
+.field label{font-size:12px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+input,select,button{border-radius:10px;border:1px solid var(--line);background:#12122a;color:var(--text);padding:11px 12px;font-size:14px;width:100%}
+button{cursor:pointer;font-weight:800;background:var(--accent);border-color:transparent}
+button.ghost{background:transparent;border-color:var(--line);color:var(--text)}
+button.danger{background:#ff2e63}
+button:active{transform:scale(.98)}
+.err{font-size:12px;color:#ff6b8a;min-height:16px;margin-top:6px}
+.layout{max-width:1100px;margin:0 auto;padding:14px 16px 40px;display:grid;grid-template-columns:220px 1fr;gap:16px}
+@media(max-width:820px){.layout{grid-template-columns:1fr}.side{position:sticky;top:0;z-index:5}}
+.side{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:16px;padding:14px;height:fit-content}
+.brand{font-weight:900;letter-spacing:.02em}
+.nav{display:grid;gap:6px;margin-top:14px}
+.nav button{justify-content:flex-start;display:flex;gap:8px;align-items:center}
+.nav button.on{background:var(--accent)}
+.userbox{margin-top:14px;padding:10px;border:1px solid var(--line);border-radius:12px;background:#00000020}
+.userbox .name{font-weight:800;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.userbox .email{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hud{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px}
+@media(max-width:640px){.hud{grid-template-columns:1fr}}
+.card{background:linear-gradient(135deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.card h3{font-size:11px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+.big{font-size:26px;font-weight:900}
+.sub{font-size:12px;color:var(--muted)}
+.bar{height:10px;background:#0a0a14;border-radius:999px;overflow:hidden;margin-top:10px;border:1px solid var(--line)}
+.fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%;transition:width .6s}
+.badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.badge{font-size:11px;padding:4px 8px;border-radius:999px;background:#ffffff10;border:1px solid var(--line)}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row > input{flex:1;min-width:160px}
+.list{margin-top:14px;display:grid;gap:8px}
+.item{display:flex;align-items:center;gap:10px;background:#12122a;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.item.done{opacity:.6}
+.item.done .title{text-decoration:line-through}
+.cb{width:22px;height:22px;border-radius:7px;border:2px solid var(--accent);display:grid;place-items:center;cursor:pointer;flex-shrink:0;background:#0a0a14}
+.cb.on{background:var(--accent);color:#fff}
+.title{flex:1;font-size:14px;word-break:break-word}
+.meta{font-size:11px;color:var(--muted);white-space:nowrap}
+.xp{font-size:12px;font-weight:900;color:var(--gold)}
+.del{background:transparent;color:#ff6b8a;border-color:#3a1a26;padding:6px 8px;font-size:12px;width:auto}
+.settings{display:grid;gap:14px}
+.set-card{background:#12122a;border:1px solid var(--line);border-radius:14px;padding:14px}
+.set-card h4{font-size:13px;margin-bottom:10px;letter-spacing:.04em}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:640px){.grid2{grid-template-columns:1fr}}
+.switch{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px;border:1px solid var(--line);border-radius:10px;background:#0f0f1e}
+.switch input{width:44px;accent-color:var(--accent)}
+.toast{position:fixed;inset:auto 16px 16px auto;background:#1e1e3a;border:1px solid var(--line);padding:12px 14px;border-radius:12px;transform:translateY(120px);opacity:0;transition:.3s;max-width:320px;z-index:20}
+.toast.show{transform:none;opacity:1}
+.lvup{position:fixed;inset:0;display:none;place-items:center;background:#00000080;backdrop-filter:blur(4px);z-index:20}
+.lvup.show{display:grid}
+.lvup .box{background:linear-gradient(135deg,#2a1a5e,#1a3a3a);border:1px solid #ffffff30;border-radius:20px;padding:28px;text-align:center;max-width:360px;margin:16px}
+</style>
+</head>
+<body>
+<div id="authView" class="auth-wrap">
+  <div class="auth-card">
+    <div style="font-size:22px;font-weight:900">⚔️ QuestLog</div>
+    <div class="sub">Seu RPG de tarefas diárias — XP, níveis e sequência</div>
+    <div class="tabs">
+      <button class="tab on" id="tabLogin">Entrar</button>
+      <button class="tab" id="tabReg">Criar conta</button>
+    </div>
+    <div id="loginForm">
+      <div class="field"><label>Email</label><input id="loginEmail" placeholder="voce@exemplo.com" autocomplete="email"></div>
+      <div class="field"><label>Senha</label><input id="loginPass" type="password" placeholder="••••••••" autocomplete="current-password"></div>
+      <div class="err" id="loginErr"></div>
+      <button id="loginBtn" style="margin-top:8px">Entrar</button>
+      <div class="sub" style="margin-top:8px;text-align:center">Dados isolados por conta • salvo neste navegador</div>
+    </div>
+    <div id="regForm" class="hidden">
+      <div class="field"><label>Nome</label><input id="regName" placeholder="Seu nome"></div>
+      <div class="field"><label>Email</label><input id="regEmail" placeholder="voce@exemplo.com"></div>
+      <div class="field"><label>Senha</label><input id="regPass" type="password" placeholder="mín. 6 caracteres"></div>
+      <div class="err" id="regErr"></div>
+      <button id="regBtn" style="margin-top:8px">Criar conta</button>
+    </div>
+  </div>
+</div>
+
+<div id="appView" class="hidden">
+  <div class="layout">
+    <aside class="side">
+      <div class="brand">⚔️ QuestLog</div>
+      <div class="sub" id="sideRank">Iniciante</div>
+      <div class="nav">
+        <button class="on" data-view="quests">📜 Quests</button>
+        <button data-view="settings">⚙️ Configurações</button>
+      </div>
+      <div class="userbox">
+        <div class="name" id="ubName">—</div>
+        <div class="email" id="ubEmail">—</div>
+        <button class="ghost" id="logoutBtn" style="margin-top:10px">Sair</button>
+      </div>
+    </aside>
+    <main>
+      <div id="viewQuests">
+        <div class="hud">
+          <div class="card">
+            <h3>Herói</h3>
+            <div class="big" id="level">Nv 1</div>
+            <div class="sub" id="rank">Iniciante</div>
+            <div class="bar"><div class="fill" id="xpFill"></div></div>
+            <div class="sub" id="xpText">0 / 100 XP</div>
+            <div class="badges" id="badges"></div>
+          </div>
+          <div class="card">
+            <h3>Hoje</h3>
+            <div class="big" id="todayDone">0/0</div>
+            <div class="sub">concluídas</div>
+            <div class="sub" id="streak">🔥 sequência: 0 dias</div>
+            <div class="sub" id="goalText"></div>
+          </div>
+          <div class="card">
+            <h3>Total</h3>
+            <div class="big" id="totalXp">0 XP</div>
+            <div class="sub" id="totalDone">0 quests feitas</div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="row">
+            <input id="title" placeholder="Nova quest: ex: Estudar 30min, Treinar...">
+            <select id="diff" style="max-width:170px">
+              <option value="easy">Fácil</option>
+              <option value="medium" selected>Média</option>
+              <option value="hard">Difícil</option>
+              <option value="epic">Épica</option>
+            </select>
+            <button id="addBtn" style="width:auto">+ Adicionar</button>
+          </div>
+          <div class="row" style="margin-top:10px;align-items:center">
+            <select id="filter" style="max-width:150px"><option value="all">Todas</option><option value="open">Abertas</option><option value="done">Concluídas</option></select>
+            <input id="search" placeholder="Buscar..." style="max-width:200px">
+            <span class="sub" id="count"></span>
+            <button class="ghost" id="clearDone" style="margin-left:auto;width:auto">Limpar concluídas</button>
+          </div>
+          <div class="list" id="list"></div>
+        </div>
+      </div>
+
+      <div id="viewSettings" class="hidden settings">
+        <div class="set-card">
+          <h4>👤 Perfil</h4>
+          <div class="grid2">
+            <div class="field"><label>Nome</label><input id="setName"></div>
+            <div class="field"><label>Email</label><input id="setEmail"></div>
+          </div>
+          <div class="row" style="margin-top:10px"><button id="saveProfile" style="width:auto">Salvar perfil</button></div>
+        </div>
+        <div class="set-card">
+          <h4>🔒 Senha</h4>
+          <div class="grid2">
+            <div class="field"><label>Senha atual</label><input id="curPass" type="password"></div>
+            <div class="field"><label>Nova senha</label><input id="newPass" type="password"></div>
+          </div>
+          <button id="changePass" style="margin-top:10px;width:auto" class="ghost">Alterar senha</button>
+          <div class="err" id="passErr"></div>
+        </div>
+        <div class="set-card">
+          <h4>⚡ Recompensas & Meta</h4>
+          <div class="grid2">
+            <div class="field"><label>XP Fácil</label><input id="xpEasy" type="number" min="1"></div>
+            <div class="field"><label>XP Média</label><input id="xpMedium" type="number" min="1"></div>
+            <div class="field"><label>XP Difícil</label><input id="xpHard" type="number" min="1"></div>
+            <div class="field"><label>XP Épica</label><input id="xpEpic" type="number" min="1"></div>
+          </div>
+          <div class="field"><label>Meta diária (quests)</label><input id="dailyGoal" type="number" min="1" max="50"></div>
+          <button id="saveRewards" style="margin-top:10px;width:auto">Salvar recompensas</button>
+        </div>
+        <div class="set-card">
+          <h4>🎨 Aparência & Preferências</h4>
+          <div class="grid2">
+            <div class="field"><label>Tema</label>
+              <select id="themeSel"><option value="default">Roxo (padrão)</option><option value="neon">Neon</option><option value="ember">Ember</option></select>
+            </div>
+            <label class="switch" style="margin-top:18px"><span>Sons</span><input id="soundOn" type="checkbox"></label>
+          </div>
+        </div>
+        <div class="set-card">
+          <h4>💾 Dados</h4>
+          <div class="row">
+            <button id="exportBtn" class="ghost" style="width:auto">Exportar JSON</button>
+            <label class="ghost" style="padding:11px 12px;border:1px solid var(--line);border-radius:10px;cursor:pointer">Importar JSON<input id="importFile" type="file" accept=".json" class="hidden"></label>
+            <button id="resetProgress" class="ghost" style="width:auto">Resetar progresso</button>
+            <button id="deleteAccount" class="danger" style="width:auto;margin-left:auto">Excluir conta</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="lvup" id="lvup"><div class="box">
+  <div style="font-size:44px">🎉</div>
+  <div style="font-size:22px;font-weight:900;margin-top:6px" id="lvupText">Subiu de nível!</div>
+  <div class="sub" id="lvupSub" style="margin-top:6px;color:#fff"></div>
+  <button id="lvupOk" style="margin-top:14px">Continuar</button>
+</div></div>
+
+<script>
+const LS_USERS='questlog:users:v1'
+const LS_SESSION='questlog:session:v1'
+const LS_DATA_P='questlog:data:v1:'
+const RANKS=[[1,'Iniciante'],[5,'Aventureiro'],[10,'Veterano'],[20,'Herói'],[30,'Lenda'],[50,'Mito']]
+const DEFAULT_XP={easy:10,medium:25,hard:50,epic:100}
+let currentUser=null, state=null
+
+function hash(s){let h=0;for(let i=0;i<s.length;i++) h=Math.imul(31,h)+s.charCodeAt(i)|0;return (h>>>0).toString(16)}
+function loadUsers(){try{return JSON.parse(localStorage.getItem(LS_USERS)||'[]')}catch{return[]}}
+function saveUsers(u){localStorage.setItem(LS_USERS,JSON.stringify(u))}
+function getSession(){try{return JSON.parse(localStorage.getItem(LS_SESSION)||'null')}catch{return null}}
+function setSession(id){localStorage.setItem(LS_SESSION,JSON.stringify(id))}
+function clearSession(){localStorage.removeItem(LS_SESSION)}
+function dataKey(id){return LS_DATA_P+id}
+function defaultState(){return{tasks:[],totalXp:0,doneCount:0,streak:0,lastDoneDate:null,settings:{xp: {...DEFAULT_XP}, dailyGoal:3, theme:'default', sound:true}}}
+function loadState(uid){
+  try{const s=JSON.parse(localStorage.getItem(dataKey(uid))); if(s){s.settings=s.settings||defaultState().settings; s.settings.xp=s.settings.xp||{...DEFAULT_XP}; return s}}catch{}
+  return defaultState()
+}
+function saveState(){ if(!currentUser) return; localStorage.setItem(dataKey(currentUser.id), JSON.stringify(state)) }
+function levelForXp(total){
+  let lvl=1,need=100,acc=0
+  while(acc+need<=total){acc+=need;lvl++;need=Math.round(need*1.2)}
+  return {level:lvl,nextNeed:need,acc}
+}
+function rankFor(lvl){let r=RANKS[0][1]; for(const [n,name] of RANKS) if(lvl>=n) r=name; return r}
+function todayStr(){return new Date().toISOString().slice(0,10)}
+function updateStreak(){
+  const t=todayStr()
+  if(state.lastDoneDate===t) return
+  const y=new Date(); y.setDate(y.getDate()-1); const ys=y.toISOString().slice(0,10)
+  if(state.lastDoneDate===ys) state.streak+=1
+  else if(!state.lastDoneDate) state.streak=1
+  else { const diff=(new Date(t)-new Date(state.lastDoneDate))/86400000; state.streak= diff===1? state.streak+1 : 1}
+  state.lastDoneDate=t
+}
+function applyTheme(th){ document.documentElement.setAttribute('data-theme', th==='default'?'':th); if(th==='default') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme',th)}
+function toast(msg){const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),2200)}
+function beep(){ if(!state.settings.sound) return; try{const a=new (window.AudioContext||window.webkitAudioContext)(); const o=a.createOscillator(); const g=a.createGain(); o.frequency.value=880; o.connect(g); g.connect(a.destination); g.gain.value=.08; o.start(); g.gain.exponentialRampToValueAtTime(.0001, a.currentTime+.25); setTimeout(()=>a.close(),300)}catch{}}
+function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+
+function showAuth(){document.getElementById('authView').classList.remove('hidden'); document.getElementById('appView').classList.add('hidden')}
+function showApp(){
+  document.getElementById('authView').classList.add('hidden'); document.getElementById('appView').classList.remove('hidden')
+  document.getElementById('ubName').textContent=currentUser.name
+  document.getElementById('ubEmail').textContent=currentUser.email
+  applyTheme(state.settings.theme)
+  document.getElementById('setName').value=currentUser.name
+  document.getElementById('setEmail').value=currentUser.email
+  document.getElementById('xpEasy').value=state.settings.xp.easy
+  document.getElementById('xpMedium').value=state.settings.xp.medium
+  document.getElementById('xpHard').value=state.settings.xp.hard
+  document.getElementById('xpEpic').value=state.settings.xp.epic
+  document.getElementById('dailyGoal').value=state.settings.dailyGoal
+  document.getElementById('themeSel').value=state.settings.theme
+  document.getElementById('soundOn').checked=!!state.settings.sound
+  const diffSel=document.getElementById('diff')
+  diffSel.innerHTML=`<option value="easy">Fácil +${state.settings.xp.easy} XP</option><option value="medium">Média +${state.settings.xp.medium} XP</option><option value="hard">Difícil +${state.settings.xp.hard} XP</option><option value="epic">Épica +${state.settings.xp.epic} XP</option>`
+  diffSel.value='medium'
+  renderHud(); renderList()
+}
+function renderHud(){
+  const info=levelForXp(state.totalXp)
+  const cur=state.totalXp-info.acc
+  document.getElementById('level').textContent='Nv '+info.level
+  const r=rankFor(info.level)
+  document.getElementById('rank').textContent=r
+  document.getElementById('sideRank').textContent=r+' • Nv '+info.level
+  document.getElementById('xpText').textContent=cur+' / '+info.nextNeed+' XP'
+  document.getElementById('xpFill').style.width=(cur/info.nextNeed*100)+'%'
+  document.getElementById('totalXp').textContent=state.totalXp+' XP'
+  document.getElementById('totalDone').textContent=state.doneCount+' quests feitas'
+  const today=todayStr()
+  const todays=state.tasks.filter(t=>t.date===today)
+  const done=todays.filter(t=>t.done).length
+  document.getElementById('todayDone').textContent=done+'/'+todays.length
+  document.getElementById('streak').textContent='🔥 sequência: '+state.streak+' dias'
+  document.getElementById('goalText').textContent='Meta: '+state.settings.dailyGoal+'/dia • '+(done>=state.settings.dailyGoal?'✅ batida!':(state.settings.dailyGoal-done)+' restantes')
+  const b=document.getElementById('badges')
+  b.innerHTML=''
+  if(state.streak>=3) b.innerHTML+='<span class="badge">🔥 3 dias</span>'
+  if(state.streak>=7) b.innerHTML+='<span class="badge">🏆 7 dias</span>'
+  if(state.doneCount>=10) b.innerHTML+='<span class="badge">⭐ 10 quests</span>'
+  if(info.level>=5) b.innerHTML+='<span class="badge">⚔️ Nv 5+</span>'
+}
+function renderList(){
+  const q=document.getElementById('search').value.toLowerCase()
+  const f=document.getElementById('filter').value
+  let items=[...state.tasks].sort((a,b)=>(a.done-b.done)||(b.created-a.created))
+  if(f==='open') items=items.filter(t=>!t.done)
+  if(f==='done') items=items.filter(t=>t.done)
+  if(q) items=items.filter(t=>t.title.toLowerCase().includes(q))
+  document.getElementById('count').textContent=items.length+' quest(s)'
+  document.getElementById('list').innerHTML=items.map(t=>`
+    <div class="item ${t.done?'done':''}">
+      <div class="cb ${t.done?'on':''}" data-toggle="${t.id}">${t.done?'✓':''}</div>
+      <div class="title">${esc(t.title)}</div>
+      <span class="xp">+${state.settings.xp[t.diff]} XP</span>
+      <span class="meta">${t.diff}</span>
+      <button class="del" data-del="${t.id}">Excluir</button>
+    </div>
+  `).join('') || '<div class="sub" style="padding:12px;text-align:center">Nenhuma quest — adicione sua primeira acima ✨</div>'
+}
+function addTask(){
+  const inp=document.getElementById('title')
+  const title=inp.value.trim()
+  if(!title) return toast('Digite a tarefa')
+  const diff=document.getElementById('diff').value
+  state.tasks.unshift({id:Date.now()+''+Math.random().toString(16).slice(2),title,diff,done:false,created:Date.now(),date:todayStr()})
+  inp.value=''; saveState(); renderHud(); renderList(); toast('Quest adicionada!')
+}
+function toggle(id){
+  const t=state.tasks.find(x=>x.id===id)
+  if(!t) return
+  const before=levelForXp(state.totalXp).level
+  t.done=!t.done
+  if(t.done){
+    const gain=state.settings.xp[t.diff]
+    state.totalXp+=gain; state.doneCount+=1; updateStreak()
+    beep(); toast('+'+gain+' XP — "'+t.title.slice(0,28)+'"')
+    const after=levelForXp(state.totalXp).level
+    if(after>before){ document.getElementById('lvupText').textContent='Nível '+after+'!'; document.getElementById('lvupSub').textContent='Rank: '+rankFor(after); document.getElementById('lvup').classList.add('show')}
+  }else{ state.totalXp=Math.max(0,state.totalXp-state.settings.xp[t.diff]); state.doneCount=Math.max(0,state.doneCount-1); toast('XP removido')}
+  saveState(); renderHud(); renderList()
+}
+
+document.getElementById('tabLogin').onclick=()=>{
+  document.getElementById('tabLogin').classList.add('on'); document.getElementById('tabReg').classList.remove('on')
+  document.getElementById('loginForm').classList.remove('hidden'); document.getElementById('regForm').classList.add('hidden')
+}
+document.getElementById('tabReg').onclick=()=>{
+  document.getElementById('tabReg').classList.add('on'); document.getElementById('tabLogin').classList.remove('on')
+  document.getElementById('regForm').classList.remove('hidden'); document.getElementById('loginForm').classList.add('hidden')
+}
+document.getElementById('loginBtn').onclick=()=>{
+  const email=document.getElementById('loginEmail').value.trim().toLowerCase()
+  const pass=document.getElementById('loginPass').value
+  const err=document.getElementById('loginErr'); err.textContent=''
+  if(!email||!pass) return err.textContent='Preencha email e senha'
+  const users=loadUsers()
+  const u=users.find(x=>x.email===email)
+  if(!u || u.pass!==hash(pass)) return err.textContent='Email ou senha inválidos'
+  currentUser=u; state=loadState(u.id); setSession(u.id); showApp(); toast('Bem-vindo, '+u.name+'!')
+}
+document.getElementById('regBtn').onclick=()=>{
+  const name=document.getElementById('regName').value.trim()
+  const email=document.getElementById('regEmail').value.trim().toLowerCase()
+  const pass=document.getElementById('regPass').value
+  const err=document.getElementById('regErr'); err.textContent=''
+  if(!name||!email||!pass) return err.textContent='Preencha todos os campos'
+  if(pass.length<6) return err.textContent='Senha deve ter 6+ caracteres'
+  if(!email.includes('@')) return err.textContent='Email inválido'
+  const users=loadUsers()
+  if(users.find(x=>x.email===email)) return err.textContent='Email já cadastrado'
+  const u={id:Date.now().toString(36)+Math.random().toString(36).slice(2), name, email, pass:hash(pass), createdAt:Date.now()}
+  users.push(u); saveUsers(users)
+  localStorage.setItem(dataKey(u.id), JSON.stringify(defaultState()))
+  currentUser=u; state=loadState(u.id); setSession(u.id); showApp(); toast('Conta criada!')
+}
+document.getElementById('logoutBtn').onclick=()=>{ clearSession(); currentUser=null; state=null; showAuth(); toast('Saiu') }
+document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('[data-view]').forEach(x=>x.classList.remove('on')); b.classList.add('on')
+  const v=b.dataset.view
+  document.getElementById('viewQuests').classList.toggle('hidden', v!=='quests')
+  document.getElementById('viewSettings').classList.toggle('hidden', v!=='settings')
+})
+document.getElementById('addBtn').onclick=addTask
+document.getElementById('title').addEventListener('keydown',e=>{if(e.key==='Enter') addTask()})
+document.getElementById('list').addEventListener('click',e=>{
+  const t=e.target.closest('[data-toggle]'); if(t) toggle(t.dataset.toggle)
+  const d=e.target.closest('[data-del]'); if(d){ state.tasks=state.tasks.filter(x=>x.id!==d.dataset.del); saveState(); renderHud(); renderList(); toast('Removida')}
+})
+document.getElementById('filter').onchange=renderList
+document.getElementById('search').oninput=renderList
+document.getElementById('clearDone').onclick=()=>{ state.tasks=state.tasks.filter(t=>!t.done); saveState(); renderHud(); renderList(); toast('Concluídas removidas')}
+document.getElementById('saveProfile').onclick=()=>{
+  const name=document.getElementById('setName').value.trim()
+  const email=document.getElementById('setEmail').value.trim().toLowerCase()
+  if(!name||!email) return toast('Preencha nome e email')
+  if(!email.includes('@')) return toast('Email inválido')
+  const users=loadUsers()
+  if(users.find(u=>u.email===email && u.id!==currentUser.id)) return toast('Email já em uso')
+  const idx=users.findIndex(u=>u.id===currentUser.id)
+  users[idx].name=name; users[idx].email=email; saveUsers(users)
+  currentUser=users[idx]; showApp(); toast('Perfil salvo')
+}
+document.getElementById('changePass').onclick=()=>{
+  const cur=document.getElementById('curPass').value
+  const nw=document.getElementById('newPass').value
+  const err=document.getElementById('passErr'); err.textContent=''
+  if(hash(cur)!==currentUser.pass) return err.textContent='Senha atual incorreta'
+  if(nw.length<6) return err.textContent='Nova senha precisa 6+ caracteres'
+  const users=loadUsers(); const idx=users.findIndex(u=>u.id===currentUser.id)
+  users[idx].pass=hash(nw); saveUsers(users); currentUser=users[idx]
+  document.getElementById('curPass').value=''; document.getElementById('newPass').value=''
+  toast('Senha alterada')
+}
+document.getElementById('saveRewards').onclick=()=>{
+  state.settings.xp.easy=Math.max(1,parseInt(document.getElementById('xpEasy').value)||10)
+  state.settings.xp.medium=Math.max(1,parseInt(document.getElementById('xpMedium').value)||25)
+  state.settings.xp.hard=Math.max(1,parseInt(document.getElementById('xpHard').value)||50)
+  state.settings.xp.epic=Math.max(1,parseInt(document.getElementById('xpEpic').value)||100)
+  state.settings.dailyGoal=Math.max(1,parseInt(document.getElementById('dailyGoal').value)||3)
+  saveState(); showApp(); toast('Recompensas salvas')
+}
+document.getElementById('themeSel').onchange=e=>{ state.settings.theme=e.target.value; saveState(); applyTheme(state.settings.theme); toast('Tema aplicado')}
+document.getElementById('soundOn').onchange=e=>{ state.settings.sound=e.target.checked; saveState(); toast(e.target.checked?'Som ativado':'Som desativado')}
+document.getElementById('exportBtn').onclick=()=>{
+  const blob=new Blob([JSON.stringify({user:currentUser, data:state},null,2)],{type:'application/json'})
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='questlog-'+currentUser.email+'.json'; a.click()
+}
+document.getElementById('importFile').onchange=e=>{
+  const f=e.target.files[0]; if(!f) return
+  const r=new FileReader(); r.onload=()=>{
+    try{ const j=JSON.parse(r.result); if(j.data && j.data.tasks){ state=j.data; saveState(); showApp(); toast('Dados importados')} else toast('Arquivo inválido')}catch{toast('Arquivo inválido')}
+  }; r.readAsText(f); e.target.value=''
+}
+document.getElementById('resetProgress').onclick=()=>{
+  if(!confirm('Resetar XP e tarefas desta conta?')) return
+  state=defaultState(); state.settings=loadState(currentUser.id).settings; saveState(); showApp(); toast('Progresso resetado')
+}
+document.getElementById('deleteAccount').onclick=()=>{
+  if(!confirm('Excluir conta e todos os dados? Irreversível.')) return
+  const users=loadUsers().filter(u=>u.id!==currentUser.id); saveUsers(users)
+  localStorage.removeItem(dataKey(currentUser.id)); clearSession(); currentUser=null; state=null; showAuth(); toast('Conta excluída')
+}
+document.getElementById('lvupOk').onclick=()=>document.getElementById('lvup').classList.remove('show')
+document.getElementById('lvup').onclick=e=>{if(e.target.id==='lvup') e.currentTarget.classList.remove('show')}
+
+;(function init(){
+  const sid=getSession()
+  if(sid){
+    const u=loadUsers().find(x=>x.id===sid)
+    if(u){ currentUser=u; state=loadState(u.id); showApp(); return}
+  }
+  showAuth()
+})()
+</script>
+</body>
+</html>

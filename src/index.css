@@ -1,0 +1,172 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============ QuestLog themes — troca COMPLETA de aparência ============
+   Cada tema redefine fundo, superfícies, bordas, textos, acentos e brilhos.
+   Componentes usam apenas var(--*) — nada de cor fixa. */
+
+:root,
+[data-theme='ink'] {
+  color-scheme: dark;
+  --bg: #0c0a09;
+  --surface: rgba(26, 23, 20, 0.82);
+  --surface-solid: #1a1714;
+  --deep: rgba(0, 0, 0, 0.35);
+  --hover: rgba(255, 255, 255, 0.07);
+  --border: rgba(255, 255, 255, 0.08);
+  --text: #ece9e4;
+  --muted: #a8a29e;
+  --faint: #6f6a63;
+  --accent: #d99a2b;
+  --accent-2: #7fb069;
+  --accent-strong: #eec06a;
+  --accent-soft: rgba(217, 154, 43, 0.12);
+  --accent-ring: rgba(217, 154, 43, 0.35);
+  --on-accent: #171006;
+  --ok: #7fb069;
+  --glow: 0 0 28px -6px rgba(217, 154, 43, 0.5);
+  --decor:
+    radial-gradient(1100px 420px at 15% -5%, rgba(217, 154, 43, 0.08), transparent),
+    radial-gradient(900px 380px at 90% 0%, rgba(127, 176, 105, 0.06), transparent);
+}
+
+[data-theme='forest'] {
+  color-scheme: dark;
+  --bg: #061009;
+  --surface: rgba(11, 29, 19, 0.85);
+  --surface-solid: #0b1d13;
+  --deep: rgba(0, 0, 0, 0.4);
+  --hover: rgba(110, 231, 183, 0.09);
+  --border: rgba(110, 231, 183, 0.15);
+  --text: #eaf7ef;
+  --muted: #9dbfa9;
+  --faint: #647d6e;
+  --accent: #34d399;
+  --accent-2: #a3e635;
+  --accent-strong: #6ee7b7;
+  --accent-soft: rgba(52, 211, 153, 0.12);
+  --accent-ring: rgba(52, 211, 153, 0.38);
+  --on-accent: #03130c;
+  --ok: #a3e635;
+  --glow: 0 0 28px -6px rgba(52, 211, 153, 0.5);
+  --decor:
+    radial-gradient(1100px 420px at 15% -5%, rgba(52, 211, 153, 0.1), transparent),
+    radial-gradient(900px 380px at 90% 0%, rgba(163, 230, 53, 0.06), transparent);
+}
+
+[data-theme='ember'] {
+  color-scheme: dark;
+  --bg: #150a06;
+  --surface: rgba(35, 16, 11, 0.85);
+  --surface-solid: #23100b;
+  --deep: rgba(0, 0, 0, 0.4);
+  --hover: rgba(251, 146, 60, 0.1);
+  --border: rgba(251, 146, 60, 0.17);
+  --text: #f7ece4;
+  --muted: #c4a08d;
+  --faint: #7d5f51;
+  --accent: #f97316;
+  --accent-2: #fbbf24;
+  --accent-strong: #fdba74;
+  --accent-soft: rgba(249, 115, 22, 0.13);
+  --accent-ring: rgba(249, 115, 22, 0.42);
+  --on-accent: #1e0c03;
+  --ok: #fbbf24;
+  --glow: 0 0 28px -6px rgba(249, 115, 22, 0.55);
+  --decor:
+    radial-gradient(1100px 420px at 15% -5%, rgba(249, 115, 22, 0.12), transparent),
+    radial-gradient(900px 380px at 90% 0%, rgba(251, 191, 36, 0.07), transparent);
+}
+
+[data-theme='mist'] {
+  color-scheme: light;
+  --bg: #ece5d4;
+  --surface: rgba(255, 253, 248, 0.92);
+  --surface-solid: #fffdf8;
+  --deep: rgba(28, 25, 23, 0.05);
+  --hover: rgba(28, 25, 23, 0.07);
+  --border: rgba(28, 25, 23, 0.15);
+  --text: #1c1917;
+  --muted: #6b6259;
+  --faint: #a39a8d;
+  --accent: #0d9488;
+  --accent-2: #65a30d;
+  --accent-strong: #0f766e;
+  --accent-soft: rgba(13, 148, 136, 0.12);
+  --accent-ring: rgba(13, 148, 136, 0.38);
+  --on-accent: #ffffff;
+  --ok: #4d7c0f;
+  --glow: 0 10px 30px -10px rgba(13, 148, 136, 0.45);
+  --decor:
+    radial-gradient(1100px 420px at 15% -5%, rgba(13, 148, 136, 0.12), transparent),
+    radial-gradient(900px 380px at 90% 0%, rgba(202, 138, 4, 0.1), transparent);
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  @apply font-sans antialiased;
+  background-color: var(--bg);
+  color: var(--text);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E"),
+    var(--decor);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.font-display {
+  font-family: 'Fraunces', Georgia, serif;
+}
+
+.eyebrow {
+  @apply text-[11px] font-semibold uppercase tracking-[0.18em];
+  color: var(--faint);
+}
+
+/* Superfícies e campos — tudo var-driven */
+.field {
+  @apply w-full rounded-lg px-3 py-2.5 text-sm outline-none transition;
+  background: var(--deep);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.field::placeholder {
+  color: var(--faint);
+}
+.field:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+select.field option {
+  background: var(--surface-solid);
+  color: var(--text);
+}
+
+/* Peças reutilizáveis */
+.mark {
+  display: grid;
+  place-items: center;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-ring);
+  color: var(--accent-strong);
+}
+.chip-accent {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  border: 1px solid var(--accent-ring);
+}
+.glow {
+  box-shadow: var(--glow);
+}
+.xp-fill {
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+}
+.hero-beam {
+  background: linear-gradient(90deg, transparent, var(--accent-strong), transparent);
+  opacity: 0.55;
+}
